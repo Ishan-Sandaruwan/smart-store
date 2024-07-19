@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcryptjs from 'bcryptjs';
 
-export const signup = async (req, res) => {
+export const signup = async (req, res, next) => {
   try {
     const { password, mobile , ...rest } = req.body;
 
@@ -20,6 +20,6 @@ export const signup = async (req, res) => {
 
     res.send({ message: "user added" });
   } catch (error) {
-    res.send(error.message);
+    next(error);
   }
 }
