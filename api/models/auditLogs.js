@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const auditLogSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming you have a User model to track who made the changes
+    ref: 'User',
     required: true,
   },
   action: {
