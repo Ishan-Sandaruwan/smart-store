@@ -1,8 +1,8 @@
-// server.js
-const express = require('express');
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+import express from 'express';
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+import customerRoutes from './routes/customerRoutes.js'; 
 
 dotenv.config();
 connectDB();
@@ -10,7 +10,6 @@ connectDB();
 const app = express();
 app.use(bodyParser.json());
 
-const customerRoutes = require('./routes/customerRoutes');
 app.use('/api/customers', customerRoutes);
 
 const PORT = process.env.PORT || 5000;

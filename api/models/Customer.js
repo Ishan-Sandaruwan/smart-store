@@ -1,20 +1,20 @@
-// models/Customer.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const customerSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   customerType: { type: String, required: true },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    country: { type: String }
   },
-  phoneNumber: String,
-  loyaltyPoints: Number
-});
+  phoneNumber: { type: String },
+  loyaltyPoints: { type: Number, default: 0 }
+}, { timestamps: true });
 
 const Customer = mongoose.model('Customer', customerSchema);
-module.exports = Customer;
+
+export default Customer;
