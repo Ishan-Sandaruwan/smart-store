@@ -20,17 +20,17 @@ export const getUsers = async (req, res, next) => {
     }
 }
 
-export const getCustomer = async(req,res,next) => {
+export const getCustomer = async (req, res, next) => {
     try {
-        const {searchBY,value} = req.query;
+        const { searchBY, value } = req.query;
 
         // Validate the parameters
         const validSearchFields = ['mobile', 'name'];
         if (!validSearchFields.includes(searchBY)) {
             return next(errorHandler(400, 'Invalid search field'));
         }
-        if(!value){
-            return next(errorHandler(400,'missing value'))
+        if (!value) {
+            return next(errorHandler(400, 'missing value'))
         }
         if (searchBY === 'mobile') {
             if (isNaN(value)) {
@@ -46,11 +46,46 @@ export const getCustomer = async(req,res,next) => {
         query[searchBY] = searchBY === 'mobile' ? Number(value) : value;
 
         const customer = await User.find(query).select('-password');
-        if(customer.length === 0 ){
-            return next(errorHandler(404,'Customer Not Found'));
+        if (customer.length === 0) {
+            return next(errorHandler(404, 'Customer Not Found'));
         }
         res.json(customer);
-    
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updateCustomer = async (req, res, next) => {
+    try {
+        const updatedCustomer = await User.findByIdAndUpdate(
+            req.params.userId,
+            {
+                $set: {
+                    name: req.body.name,
+                    mobile: req.body.mobile,
+                    email: req.body.email,
+                    address: req.body.address,
+                },
+            },
+            { new: true }
+        );
+        res.status(200).json(updatedCustomer);
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+export const addPoints = async (req, res, next) => {
+    try {
+        const updatedPoints = await User.findByIdAndUpdate(
+            req.params.userId,
+            {
+                loyaltyPoints: req.body.points
+            }, { new: true }
+        );
+        res.status(200).json(updatedPoints.loyaltyPoints);
     } catch (error) {
         next(error);
     }
