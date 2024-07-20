@@ -78,14 +78,32 @@ export const updateCustomer = async (req, res, next) => {
 }
 
 export const addPoints = async (req, res, next) => {
+
     try {
-        const updatedPoints = await User.findByIdAndUpdate(
-            req.params.userId,
-            {
-                loyaltyPoints: req.body.points
-            }, { new: true }
-        );
-        res.status(200).json(updatedPoints.loyaltyPoints);
+        if (req.user.access < 3) {
+            const updatedPoints = await User.findByIdAndUpdate(
+                req.params.userId,
+                {
+                    loyaltyPoints: req.body.points
+                }, { new: true }
+            );
+            return res.status(200).json(updatedPoints.loyaltyPoints);
+        } else {
+            return res.status(401).json("no permission");
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteUser = async (req, res, next) => {
+    try {
+        if (req.user.access < 2) {
+            await User.findByIdAndDelete(req.params.userId);
+            res.status(200).json('The User has been deleted');
+        } else {
+            return res.status(401).json("no permission");
+        }
     } catch (error) {
         next(error);
     }

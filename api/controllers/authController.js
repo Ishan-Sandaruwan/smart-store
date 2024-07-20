@@ -7,6 +7,10 @@ export const signup = async (req, res, next) => {
     try {
         const { password, mobile, ...rest } = req.body;
 
+        if (!password || !mobile) {
+            return next(errorHandler(400, 'Password and mobile are required'));
+        }
+
         // Hash the password
         const hashpass = bcryptjs.hashSync(password, 10);
 
@@ -20,32 +24,45 @@ export const signup = async (req, res, next) => {
         // Save the new user
         await newUser.save();
 
-        res.send({ message: "user added" });
+        res.send({ message: "User added" });
     } catch (error) {
         next(error);
     }
-}
+};
 
 export const signin = async (req, res, next) => {
     try {
         const { mobile, password } = req.body;
-        if (!mobile || mobile === '' || !password || password === '') {
-            return next(errorHandler(400, 'all fields are required!!!'));
+        if (!mobile || !password) {
+            return next(errorHandler(400, 'All fields are required'));
         }
+
         const validUser = await User.findOne({ mobile });
         if (!validUser) {
-            return next(errorHandler(404, 'User not found!!!'));
+            return next(errorHandler(404, 'User not found'));
         }
+
         const validPassword = bcryptjs.compareSync(password, validUser.password);
         if (!validPassword) {
             return next(errorHandler(400, 'Invalid password'));
         }
-        const { password:pass, ...rest } = validUser._doc;
-        const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+
+        const { password: pass, ...rest } = validUser._doc;
+        let piority = 3;
+        if (validUser.type === "admin") {
+            piority = 1;
+        } else if (validUser.type === "cashier") {
+            piority = 2;
+        }
+
+        // Create JWT token without expiration
+        const token = jwt.sign({ id: validUser._id, access: piority }, process.env.JWT_SECRET);
+
         res.status(200).cookie('access_token', token, {
-            httpOnly: true
-        }).json({ rest });
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production' // Use secure cookies in production
+        }).json({ ...rest });
     } catch (error) {
         next(error);
     }
-}
+};
