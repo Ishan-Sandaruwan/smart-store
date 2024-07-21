@@ -25,3 +25,56 @@ export const addAttendance = async (req, res, next) => {
         return next(errorHandler(401, "no permission"));
     }
 }
+
+export const deleteAttendance = async (req, res, next) => {
+    if (req.user.access < 3) {
+        try {
+            const deletedAttendance = await Attendance.findByIdAndDelete(req.params.attId);
+            if (!deletedAttendance) {
+                return next(errorHandler(404, "Attendance not found"));
+            }
+            res.status(200).json('The attendance has been deleted');
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        return next(errorHandler(401, "No permission"));
+    }
+};
+
+export const updateAttendance = async (req, res, next) => {
+    if (req.user.access < 3) {
+        try {
+            const updatedAttendance = await Attendance.findByIdAndUpdate(
+                req.params.attId,
+                { status: req.body.status },
+                { new: true }
+            );
+            if (!updatedAttendance) {
+                return next(errorHandler(404, "Attendance not found"));
+            }
+            res.status(200).json(updatedAttendance);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        return next(errorHandler(401, "No permission"));
+    }
+};
+
+export const getAttendance = async (req, res, next) => {
+    if (req.user.access < 3) {
+        try {
+            const time = new Date(req.params.time);
+            if (isNaN(time.getTime())) {
+                return next(errorHandler(400, "Invalid date"));
+            }
+            const attendance = await Attendance.find({ date: { $gt: time.toISOString() } });
+            res.status(200).json(attendance);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        return next(errorHandler(401, "No permission"));
+    }
+};
