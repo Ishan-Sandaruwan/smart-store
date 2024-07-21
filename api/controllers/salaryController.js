@@ -56,3 +56,21 @@ export const calculateAndSaveSalary = async (req, res, next) => {
         next(error);
     }
 };
+
+
+export const getSalary = async (req,res,next)=> {
+    if (req.user.access < 3) {
+        try {
+            const time = new Date(req.params.time);
+            if (isNaN(time.getTime())) {
+                return next(errorHandler(400, "Invalid date"));
+            }
+            const salary = await Salary.find({ date: { $gt: time.toISOString() } });
+            res.status(200).json(salary);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        return next(errorHandler(401, "No permission"));
+    }
+}
