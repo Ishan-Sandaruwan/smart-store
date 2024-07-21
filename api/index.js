@@ -5,6 +5,7 @@ import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
+import attendanceRoutes from './routes/attendanceRouter.js';
 import cookieParser from 'cookie-parser';
 
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/emp',employeeRoutes);
+app.use('/api/attendance',attendanceRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
