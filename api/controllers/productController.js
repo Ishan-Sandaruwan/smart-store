@@ -10,7 +10,7 @@ export const addProduct = async (req, res, next) => {
             if (!category || !name || !price || !sellingPrice || !discounte) {
                 return res.status(400).json({ message: 'All required fields must be provided' });
             }
-            const discountedPrice = sellingPrice;
+            let discountedPrice = sellingPrice;
             if (discounte == -1) {
                 discountedPrice = sellingPrice - (sellingPrice * 0.05);
             } else if (discounte == 0) {
@@ -61,6 +61,11 @@ export const updatePrice = async (req, res, next) => {
                     $set: { name, description, category, price, sellingPrice, discountedPrice }
                 }, { new: true });
                 res.json(updatedProduct);
+            }else{
+                const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, {
+                    $set: { name, description, category }
+                }, { new: true });
+                res.json(updatedProduct);  
             }
         } catch (error) {
             next(error);
