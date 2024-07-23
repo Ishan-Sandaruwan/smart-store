@@ -4,15 +4,13 @@ import { errorHandler } from "../utils/error.js";
 export const addProduct = async (req, res, next) => {
     if (req.user.access < 3) {
         try {
-            const { name, description, price, sellingPrice, discounte } = req.body;
+            const { name, description, category, price, sellingPrice, discounte } = req.body;
 
             // Check if all required fields are present
-            if (!name || !price || !sellingPrice || !discounte) {
+            if (!category || !name || !price || !sellingPrice || !discounte) {
                 return res.status(400).json({ message: 'All required fields must be provided' });
             }
-
             const discountedPrice = sellingPrice;
-
             if (discounte == -1) {
                 discountedPrice = sellingPrice - (sellingPrice * 0.05);
             } else if (discounte == 0) {
@@ -20,11 +18,9 @@ export const addProduct = async (req, res, next) => {
             } else {
                 discountedPrice = sellingPrice - discounte;
             }
-
             const newProduct = new Product({
-                name, description, price, sellingPrice, discountedPrice
+                name, description, category, price, sellingPrice, discountedPrice
             });
-
             const savedProduct = await newProduct.save();
             res.send(savedProduct);
         } catch (error) {
@@ -51,8 +47,7 @@ export const deleteProduct = async (req, res, next) => {
 export const updatePrice = async (req, res, next) => {
     if (req.user.access < 3) {
         try {
-            const { name, description, price, sellingPrice, discounte } = req.body;
-
+            const { name, description, category, price, sellingPrice, discounte } = req.body;
             if (discounte) {
                 const discountedPrice = sellingPrice;
                 if (discounte == -1) {
@@ -62,24 +57,44 @@ export const updatePrice = async (req, res, next) => {
                 } else {
                     discountedPrice = sellingPrice - discounte;
                 }
-                const newProduct = new Product({
-                    name, description, price, sellingPrice, discountedPrice
-                });
-                // const savedProduct = await Employee.findByIdAndUpdate(req.params.empId, {
-                //     $set: {
-                //         name: req.body.name,
-                //         salary: req.body.salary,
-                //         mobile: req.body.mobile,
-                //         address: req.body.address,
-                //         nic: req.body.nic
-                //     },
-                // }, { new: true });
-                res.send(savedProduct);
+                const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, {
+                    $set: { name, description, category, price, sellingPrice, discountedPrice }
+                }, { new: true });
+                res.json(updatedProduct);
             }
         } catch (error) {
             next(error);
         }
     } else {
         return next(errorHandler(401, "No permission "));
+    }
+}
+// Controller function to get a product by ID
+export const getProduct = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.productId);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.json(product);
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Controller function to get products by category
+export const getProductByCate = async (req, res, next) => {
+    try {
+        const productList = await Product.find({ category: req.query.category });
+
+        if (productList.length === 0) {
+            return res.status(404).json({ message: 'No products found for this category' });
+        }
+
+        res.json(productList);
+    } catch (error) {
+        next(error);
     }
 }
