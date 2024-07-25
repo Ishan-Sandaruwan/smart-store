@@ -96,3 +96,15 @@ export const addStock = async (req, res, next) => {
         next(error);
     }
 };
+export const getLow = async (req, res, next) => {
+    if (req.user.access >= 3) {
+        return next(errorHandler(401, "No permission"));
+    }
+
+    try {
+        const inventory = await Inventory.find({ stockQuantity: { $lte: 10 } });
+        res.status(200).json(inventory);
+    } catch (error) {
+        next(error);
+    }
+};
