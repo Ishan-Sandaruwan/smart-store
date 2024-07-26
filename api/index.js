@@ -10,6 +10,7 @@ import salaryRoutes from './routes/salaryRoutes.js';
 import cookieParser from 'cookie-parser';
 import productsRoutes from './routes/productRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -26,6 +27,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/salary', salaryRoutes);
 app.use('/api/product', productsRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/order', orderRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
