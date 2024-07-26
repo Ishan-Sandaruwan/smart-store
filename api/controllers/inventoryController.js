@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 import { errorHandler } from "../utils/error.js";
 
 export const addNewStock = async (req, res, next) => {
-    if (req.user.access < 3) {
+    if (req.user.access > 2) {
         return next(errorHandler(401, "no permission"));
     }
 
@@ -27,7 +27,7 @@ export const addNewStock = async (req, res, next) => {
 };
 
 export const checkInventoryOfOne = async (req, res, next) => {
-    if (req.user.access < 3) {
+    if (req.user.access >2) {
         return next(errorHandler(401, "No permission"));
     }
 
@@ -43,7 +43,7 @@ export const checkInventoryOfOne = async (req, res, next) => {
 };
 
 export const checkInventoryOfAll = async (req, res, next) => {
-    if (req.user.access < 3) {
+    if (req.user.access > 2) {
         return next(errorHandler(401, "No permission"));
     }
 
@@ -55,8 +55,30 @@ export const checkInventoryOfAll = async (req, res, next) => {
     }
 };
 
+export const getByCategory = async (req, res, next) => {
+    if (req.user.access > 2) {
+        return next(errorHandler(401, "No permission"));
+    }
+
+    try {
+        const products = [];
+        const inventory = await Inventory.find();
+
+        for (const p of inventory) {
+            const pp = await Product.findById(p.productId);
+            if (pp.category === req.query.category) {
+                products.push(p);
+            }
+        }
+
+        res.status(200).json(products);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const reduceQuantity = async (req, res, next) => {
-    if (req.user.access < 3) {
+    if (req.user.access > 2) {
         return next(errorHandler(401, "No permission"));
     }
 
@@ -79,7 +101,7 @@ export const reduceQuantity = async (req, res, next) => {
 };
 
 export const addStock = async (req, res, next) => {
-    if (req.user.access < 3) {
+    if (req.user.access > 2) {
         return next(errorHandler(401, "No permission"));
     }
 
@@ -97,7 +119,7 @@ export const addStock = async (req, res, next) => {
     }
 };
 export const getLow = async (req, res, next) => {
-    if (req.user.access >= 3) {
+    if (req.user.access > 2) {
         return next(errorHandler(401, "No permission"));
     }
 
